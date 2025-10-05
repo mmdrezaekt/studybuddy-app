@@ -1,46 +1,97 @@
-# Getting Started with Create React App
+# StudyBuddy - Collaborative Study Planner
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+StudyBuddy is a web-based platform designed to help students plan, organize, and collaborate on their academic goals. It allows users to create personalized study plans, share notes, and monitor progress, while also enabling small groups of students to work together on shared learning objectives.
+
+## Features
+
+- **User Authentication**: Sign up and log in using Google or email/password via Firebase Authentication
+- **Study Plan Management**: Create study plans with tasks, deadlines, and progress tracking
+- **Collaboration**: Invite others to collaborate on study plans
+- **File Sharing**: Upload and share study materials (PDFs, images, documents)
+- **Progress Tracking**: Visual progress bars and gamification elements
+- **Real-time Updates**: Instant synchronization across all devices
+- **Responsive Design**: Works on desktop and mobile devices
+
+## Technology Stack
+
+- **Frontend**: React 19 + TypeScript + TailwindCSS
+- **Backend**: Firebase (Firestore, Authentication, Storage, Cloud Functions)
+- **Routing**: React Router DOM
+- **State Management**: React Hooks
+- **Styling**: TailwindCSS
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v14 or higher)
+- npm or yarn
+- Firebase project
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd studybuddy
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Configure Firebase:
+   - Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
+   - Enable Authentication, Firestore, and Storage
+   - Copy your Firebase configuration
+   - Update `src/firebase/config.ts` with your Firebase config
+
+4. Start the development server:
+```bash
+npm start
+```
+
+5. Open [http://localhost:3000](http://localhost:3000) to view the app
 
 ## Available Scripts
 
-In the project directory, you can run:
+- `npm start` - Runs the app in development mode
+- `npm run build` - Builds the app for production
+- `npm test` - Launches the test runner
+- `npm run eject` - Ejects from Create React App (one-way operation)
 
-### `npm start`
+## Project Structure
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```
+src/
+├── components/
+│   ├── Auth/           # Authentication components
+│   ├── Dashboard/      # Main dashboard components
+│   └── StudyPlan/      # Study plan detail components
+├── firebase/           # Firebase configuration
+├── types/              # TypeScript type definitions
+└── App.tsx             # Main app component
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Firebase Setup
 
-### `npm test`
+1. Create a new Firebase project
+2. Enable the following services:
+   - Authentication (Email/Password and Google)
+   - Firestore Database
+   - Storage
+   - Cloud Functions (optional)
+3. Set up Firestore security rules
+4. Configure Firebase Hosting (optional)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Contributing
 
-### `npm run build`
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## License
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+This project is licensed under the MIT License.
