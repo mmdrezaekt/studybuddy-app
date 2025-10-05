@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db } from './firebase/config';
+import { auth } from './firebase/config';
 import { User } from './types';
 import AuthWrapper from './components/Auth/AuthWrapper';
 import Dashboard from './components/Dashboard/Dashboard';
@@ -20,44 +19,16 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
-        try {
-          // Try to get user data from Firestore
-          const userDocRef = doc(db, 'users', firebaseUser.uid);
-          const userDoc = await getDoc(userDocRef);
-          
-          if (userDoc.exists()) {
-            // User exists in Firestore, use that data
-            const userData = userDoc.data() as User;
-            setUser(userData);
-          } else {
-            // User doesn't exist in Firestore, create them
-            const userData: User = {
-              uid: firebaseUser.uid,
-              email: firebaseUser.email!,
-              displayName: firebaseUser.displayName || '',
-              photoURL: firebaseUser.photoURL || undefined,
-              major: undefined,
-              createdAt: new Date(),
-            };
-            
-            // Create user document in Firestore
-            await setDoc(userDocRef, userData);
-            setUser(userData);
-          }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
-          // Fallback to basic user data if Firestore fails
-          const userData: User = {
-            uid: firebaseUser.uid,
-            email: firebaseUser.email!,
-            displayName: firebaseUser.displayName || '',
-            photoURL: firebaseUser.photoURL || undefined,
-            createdAt: new Date(),
-          };
-          setUser(userData);
-        }
+        const userData: User = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email!,
+          displayName: firebaseUser.displayName || '',
+          photoURL: firebaseUser.photoURL || undefined,
+          createdAt: new Date(),
+        };
+        setUser(userData);
       } else {
         setUser(null);
       }

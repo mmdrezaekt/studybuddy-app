@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../../firebase/config';
-import { User } from '../../types';
+import { auth } from '../../firebase/config';
 
 interface LoginProps {
   onToggleMode: () => void;
@@ -34,26 +32,7 @@ const Login: React.FC<LoginProps> = ({ onToggleMode }) => {
 
     try {
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
-      
-      // Check if user exists in Firestore, if not create them
-      const userDocRef = doc(db, 'users', result.user.uid);
-      const userDoc = await getDoc(userDocRef);
-      
-      if (!userDoc.exists()) {
-        // Create user document in Firestore for Google OAuth users
-        const userData: User = {
-          uid: result.user.uid,
-          email: result.user.email!,
-          displayName: result.user.displayName || '',
-          photoURL: result.user.photoURL || undefined,
-          major: undefined,
-          createdAt: new Date(),
-        };
-        
-        await setDoc(userDocRef, userData);
-        console.log('Google user created successfully in Firestore');
-      }
+      await signInWithPopup(auth, provider);
     } catch (err: any) {
       setError(err.message);
     } finally {

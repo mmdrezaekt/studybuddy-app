@@ -59,9 +59,6 @@ const Register: React.FC<RegisterProps> = ({ onToggleMode }) => {
       };
 
       await setDoc(doc(db, 'users', user.uid), userData);
-      
-      // Success message
-      console.log('User created successfully in Firestore');
     } catch (err: any) {
       setError(err.message);
     } finally {
