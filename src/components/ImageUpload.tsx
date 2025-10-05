@@ -65,8 +65,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       <div className="relative group">
         <img
           src={displayUrl}
-          alt="Profile"
           className="w-16 h-16 rounded-full object-cover border-2 border-gray-300 group-hover:border-indigo-500 transition-colors"
+          alt=""
         />
         <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
           <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

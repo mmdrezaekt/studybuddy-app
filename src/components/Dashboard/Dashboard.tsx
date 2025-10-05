@@ -135,7 +135,7 @@ const Dashboard: React.FC = () => {
                 <img
                   className="h-8 w-8 rounded-full ring-2 ring-indigo-200 flex-shrink-0"
                   src={user.photoURL || '/default-avatar.png'}
-                  alt={user.displayName}
+                  alt=""
                 />
                 <div className="text-right min-w-0 flex-1">
                   <p className="text-sm font-medium text-gray-900 truncate" title={user.displayName}>
@@ -150,7 +150,7 @@ const Dashboard: React.FC = () => {
                 <img
                   className="h-7 w-7 rounded-full ring-2 ring-indigo-200 flex-shrink-0"
                   src={user.photoURL || '/default-avatar.png'}
-                  alt={user.displayName}
+                  alt=""
                 />
                 <div className="min-w-0 flex-1">
                   <p className="mobile-user-name text-gray-900" title={user.displayName}>

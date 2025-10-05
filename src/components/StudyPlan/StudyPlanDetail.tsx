@@ -385,7 +385,7 @@ const StudyPlanDetail: React.FC = () => {
                             <img
                               className="h-8 w-8 rounded-full object-cover"
                               src={member.photoURL}
-                              alt={member.displayName}
+                              alt=""
                             />
                           ) : (
                             <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
