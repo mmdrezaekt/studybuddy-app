@@ -196,3 +196,25 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   <p>Made with ❤️ by <strong>Mohsen Ektefaei</strong></p>
   <p>⭐ Star this repo if you found it helpful!</p>
 </div>
+
+---
+
+## 🔗 مستندات فارسی کامل
+برای مستند جامع فارسی پروژه شامل معماری، دیتابیس، Cloud Functions، FCM، PWA، امنیت، تست و عیب‌یابی این فایل را ببینید:
+
+`PROJECT_DOCUMENTATION_FA.md`
+
+## ▶️ دستورات متداول
+```bash
+# توسعه
+npm start
+
+# تست‌ها (نمونه‌ها در TESTING_GUIDE.md)
+npm test
+npm run test:e2e
+npm run test:all
+
+# بیلد و دیپلوی
+npm run build
+firebase deploy
+```

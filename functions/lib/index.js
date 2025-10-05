@@ -22,9 +22,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var _a, _b;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateFCMToken = exports.checkIncompletePlans = exports.checkUpcomingDeadlines = void 0;
+exports.sendMemberAddedEmail = exports.sendInvitationEmail = exports.updateFCMToken = exports.checkIncompletePlans = exports.checkUpcomingDeadlines = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const nodemailer = __importStar(require("nodemailer"));
@@ -34,8 +33,8 @@ admin.initializeApp();
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: ((_a = functions.config().email) === null || _a === void 0 ? void 0 : _a.user) || 'your-email@gmail.com',
-        pass: ((_b = functions.config().email) === null || _b === void 0 ? void 0 : _b.pass) || 'your-app-password',
+        user: process.env.EMAIL_USER || 'your-email@gmail.com',
+        pass: process.env.EMAIL_PASS || 'your-app-password',
     },
 });
 // Scheduled function to check for upcoming deadlines
@@ -150,10 +149,9 @@ async function getParticipants(participantIds) {
 }
 // Helper function to send deadline reminder email
 async function sendDeadlineReminderEmail(user, studyPlan) {
-    var _a;
     const daysUntilDeadline = getDaysUntilDeadline(studyPlan.dueDate.toDate());
     const mailOptions = {
-        from: ((_a = functions.config().email) === null || _a === void 0 ? void 0 : _a.user) || 'your-email@gmail.com',
+        from: process.env.EMAIL_USER || 'your-email@gmail.com',
         to: user.email,
         subject: `Deadline Reminder: ${studyPlan.title}`,
         html: `
@@ -183,9 +181,8 @@ async function sendDeadlineReminderEmail(user, studyPlan) {
 }
 // Helper function to send incomplete plan email
 async function sendIncompletePlanEmail(user, studyPlan) {
-    var _a;
     const mailOptions = {
-        from: ((_a = functions.config().email) === null || _a === void 0 ? void 0 : _a.user) || 'your-email@gmail.com',
+        from: process.env.EMAIL_USER || 'your-email@gmail.com',
         to: user.email,
         subject: `Study Plan Update: ${studyPlan.title}`,
         html: `
@@ -272,15 +269,112 @@ exports.updateFCMToken = functions.https.onCall(async (data, context) => {
     const { fcmToken } = data;
     const userId = context.auth.uid;
     try {
-        await admin.firestore().collection('users').doc(userId).update({
+        await admin.firestore().collection('users').doc(userId).set({
             fcmToken,
             updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
+        }, { merge: true });
+        console.log(`FCM token updated for user ${userId}`);
         return { success: true };
     }
     catch (error) {
         console.error('Error updating FCM token:', error);
         throw new functions.https.HttpsError('internal', 'Failed to update FCM token');
+    }
+});
+// Function to send invitation emails
+exports.sendInvitationEmail = functions.https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+    }
+    const { inviteeEmail, studyPlanTitle, inviterName, invitationUrl } = data;
+    const mailOptions = {
+        from: process.env.EMAIL_USER || 'your-email@gmail.com',
+        to: inviteeEmail,
+        subject: `You've been invited to join "${studyPlanTitle}" on StudyBuddy`,
+        html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #4F46E5;">StudyBuddy - You're Invited!</h2>
+        <p>Hello!</p>
+        <p><strong>${inviterName}</strong> has invited you to join their study plan <strong>"${studyPlanTitle}"</strong> on StudyBuddy.</p>
+        <div style="background-color: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0;">Study Plan Details:</h3>
+          <p><strong>Title:</strong> ${studyPlanTitle}</p>
+          <p><strong>Invited by:</strong> ${inviterName}</p>
+        </div>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${invitationUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
+            Accept Invitation
+          </a>
+        </div>
+        <p>Click the button above to join the study plan and start collaborating with your team!</p>
+        <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
+        <p style="word-break: break-all; color: #4F46E5;">${invitationUrl}</p>
+        <p>Best regards,<br>StudyBuddy Team</p>
+      </div>
+    `
+    };
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Invitation email sent to ${inviteeEmail}`);
+        // Create in-app notification for the inviter
+        await createNotificationRecord(context.auth.uid, {
+            title: 'Invitation Sent',
+            message: `Invitation sent to ${inviteeEmail} for "${studyPlanTitle}"`,
+            type: 'invitation'
+        });
+        return { success: true };
+    }
+    catch (error) {
+        console.error(`Error sending invitation email to ${inviteeEmail}:`, error);
+        throw new functions.https.HttpsError('internal', 'Failed to send invitation email');
+    }
+});
+// Function to send member added notification emails
+exports.sendMemberAddedEmail = functions.https.onCall(async (data, context) => {
+    if (!context.auth) {
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+    }
+    const { memberEmail, studyPlanTitle, inviterName, studyPlanUrl } = data;
+    const mailOptions = {
+        from: process.env.EMAIL_USER || 'your-email@gmail.com',
+        to: memberEmail,
+        subject: `You've been added to "${studyPlanTitle}" on StudyBuddy`,
+        html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #4F46E5;">StudyBuddy - Welcome to the Team!</h2>
+        <p>Hello!</p>
+        <p><strong>${inviterName}</strong> has added you to their study plan <strong>"${studyPlanTitle}"</strong> on StudyBuddy.</p>
+        <div style="background-color: #F3F4F6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin-top: 0;">Study Plan Details:</h3>
+          <p><strong>Title:</strong> ${studyPlanTitle}</p>
+          <p><strong>Added by:</strong> ${inviterName}</p>
+        </div>
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${studyPlanUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; display: inline-block; font-weight: bold;">
+            View Study Plan
+          </a>
+        </div>
+        <p>Click the button above to access the study plan and start collaborating with your team!</p>
+        <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
+        <p style="word-break: break-all; color: #4F46E5;">${studyPlanUrl}</p>
+        <p>Best regards,<br>StudyBuddy Team</p>
+      </div>
+    `
+    };
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Member added email sent to ${memberEmail}`);
+        // Create in-app notification for the inviter
+        await createNotificationRecord(context.auth.uid, {
+            title: 'Member Added',
+            message: `${memberEmail} has been added to "${studyPlanTitle}"`,
+            type: 'member_added'
+        });
+        return { success: true };
+    }
+    catch (error) {
+        console.error(`Error sending member added email to ${memberEmail}:`, error);
+        throw new functions.https.HttpsError('internal', 'Failed to send member added email');
     }
 });
 //# sourceMappingURL=index.js.map
